@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookSpace | Catalog</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<h1>📚 BookSpace Catalog</h1>
+
+<div class="filters">
+    <form th:action="@{/ui/books}" method="get" class="search-form">
+        <input type="text"
+               name="keyword"
+               th:value="${keyword}"
+               placeholder="Search by title or author..."
+               class="input-search">
+
+        <select name="sort" class="select-sort" onchange="this.form.submit()">
+            <option value="name,asc" th:selected="${currentSort == 'name,asc'}">Title (A-Z)</option>
+            <option value="name,desc" th:selected="${currentSort == 'name,desc'}">Title (Z-A)</option>
+            <option value="price,asc" th:selected="${currentSort == 'price,asc'}">Price (Low to High)</option>
+            <option value="price,desc" th:selected="${currentSort == 'price,desc'}">Price (High to Low)</option>
+        </select>
+
+        <button type="submit" class="btn-search">Search</button>
+        <a th:href="@{/ui/books}" class="btn-reset">Reset</a>
+    </form>
+</div>
+
+<div class="grid">
+    <div th:each="book : ${books}" class="card">
+        <div class="title" th:text="${book.name}">Book Title</div>
+        <div class="author" th:text="'by ' + ${book.author}">Author</div>
+
+        <div class="card-actions">
+            <a th:href="@{/ui/books/{id}(id=${book.id})}" class="btn-details">Details</a>
+        </div>
+
+        <div class="card-footer">
+            <div class="price" th:text="${book.price} + ' $'">0.00 $</div>
+            <a th:href="@{'http://localhost:5173/checkout/' + ${book.id}}" class="btn-buy">Buy Now</a>
+        </div>
+    </div>
+</div>
+
+<div class="pagination" th:if="${totalPages > 1}">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/ui/books(page=${currentPage - 1}, keyword=${keyword}, sort=${currentSort})}"
+       class="page-link">&laquo; Previous</a>
+
+    <div class="page-info">
+        Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+    </div>
+
+    <a th:if="${currentPage < totalPages - 1}"
+       th:href="@{/ui/books(page=${currentPage + 1}, keyword=${keyword}, sort=${currentSort})}"
+       class="page-link">Next &raquo;</a>
+</div>
+
+</body>
+</html>

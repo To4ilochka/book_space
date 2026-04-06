@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record BookShortResponse(
+        Long id,
         String name,
         String genre,
         AgeGroup ageGroup,

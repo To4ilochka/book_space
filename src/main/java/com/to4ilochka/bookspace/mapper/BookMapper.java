@@ -12,12 +12,16 @@ import org.springframework.data.domain.Page;
 @Mapper(componentModel = "spring")
 public interface BookMapper {
     @Mapping(target = "id", ignore = true)
-    Book toEntity (CreateBookRequest createBookRequest);
+    Book toEntity(CreateBookRequest createBookRequest);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     void updateEntityFromDto(UpdateBookRequest dto, @MappingTarget Book entity);
+
     BookShortResponse toShortResponse(Book book);
+
     PagedResponse<BookShortResponse> toPagedResponse(Page<Book> page);
+
     BookDetailResponse toDetailResponse(Book book);
 }

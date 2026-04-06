@@ -1,13 +1,15 @@
 package com.to4ilochka.bookspace.service;
 
-import com.to4ilochka.bookspace.dto.employee.EmployeeDTO;
+import com.to4ilochka.bookspace.dto.employee.CreateEmployeeRequest;
+import com.to4ilochka.bookspace.dto.employee.EmployeeResponse;
+import com.to4ilochka.bookspace.dto.employee.UpdateEmployeeRequest;
 
 import java.util.List;
 
 public interface EmployeeService {
-    List<EmployeeDTO> getAllEmployees();
-    EmployeeDTO getEmployeeByEmail(String email);
-    EmployeeDTO updateEmployeeByEmail(String email, EmployeeDTO employee);
-    void deleteEmployeeByEmail(String email);
-    EmployeeDTO addEmployee(EmployeeDTO employee);
+    EmployeeResponse getMyProfile(Long employeeId);
+    List<EmployeeResponse> getAllEmployees();
+    EmployeeResponse getEmployeeById(Long id);
+    EmployeeResponse createEmployee(CreateEmployeeRequest request);
+    EmployeeResponse updateEmployee(Long id, UpdateEmployeeRequest request);
 }

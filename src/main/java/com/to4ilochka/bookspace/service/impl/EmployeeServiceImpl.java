@@ -1,35 +1,72 @@
 package com.to4ilochka.bookspace.service.impl;
 
-import com.to4ilochka.bookspace.dto.employee.EmployeeDTO;
+import com.to4ilochka.bookspace.dto.employee.CreateEmployeeRequest;
+import com.to4ilochka.bookspace.dto.employee.EmployeeResponse;
+import com.to4ilochka.bookspace.dto.employee.UpdateEmployeeRequest;
+import com.to4ilochka.bookspace.mapper.EmployeeMapper;
+import com.to4ilochka.bookspace.model.Employee;
+import com.to4ilochka.bookspace.model.enums.Role;
+import com.to4ilochka.bookspace.repo.EmployeeRepository;
+import com.to4ilochka.bookspace.repo.UserRepository;
 import com.to4ilochka.bookspace.service.EmployeeService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+
+    private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
+    private final EmployeeMapper employeeMapper;
+    private final PasswordEncoder passwordEncoder;
+
     @Override
-    public List<EmployeeDTO> getAllEmployees() {
-        return List.of();
+    public EmployeeResponse getMyProfile(Long employeeId) {
+        return employeeRepository.findById(employeeId)
+                .map(employeeMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
     }
 
     @Override
-    public EmployeeDTO getEmployeeByEmail(String email) {
-        return null;
+    public List<EmployeeResponse> getAllEmployees() {
+        return employeeMapper.toResponseList(employeeRepository.findAll());
     }
 
     @Override
-    public EmployeeDTO updateEmployeeByEmail(String email, EmployeeDTO employee) {
-        return null;
+    public EmployeeResponse getEmployeeById(Long id) {
+        return employeeRepository.findById(id)
+                .map(employeeMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
     }
 
+    @Transactional
     @Override
-    public void deleteEmployeeByEmail(String email) {
+    public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
 
+        Employee employee = employeeMapper.toEntity(request);
+        employee.getUser().setPassword(passwordEncoder.encode(request.password()));
+        employee.getUser().getRoles().add(Role.ROLE_EMPLOYEE);
+
+        return employeeMapper.toResponse(employeeRepository.save(employee));
     }
 
+    @Transactional
     @Override
-    public EmployeeDTO addEmployee(EmployeeDTO employee) {
-        return null;
+    public EmployeeResponse updateEmployee(Long id, UpdateEmployeeRequest request) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+
+        employee.getUser().setName(request.name());
+        employee.setPhone(request.phone());
+
+        return employeeMapper.toResponse(employeeRepository.save(employee));
     }
 }
