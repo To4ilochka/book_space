@@ -1,6 +1,6 @@
 package com.to4ilochka.bookspace.security.jwt;
 
-import com.to4ilochka.bookspace.dto.security.JwtAuthenticationDTO;
+import com.to4ilochka.bookspace.dto.auth.AuthResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -21,15 +21,15 @@ public class JwtService {
     @Value("${app.jwt.refreshExpiration}")
     private long refreshExpirationMs;
 
-    public JwtAuthenticationDTO generateAuthToken(String email) {
-        return new JwtAuthenticationDTO(
+    public AuthResponse generateAuthToken(String email) {
+        return new AuthResponse(
                 generateJwtToken(email),
                 generateRefreshToken(email)
         );
     }
 
-    public JwtAuthenticationDTO refreshBaseToken(String email, String refreshToken) {
-        return new JwtAuthenticationDTO(
+    public AuthResponse refreshBaseToken(String email, String refreshToken) {
+        return new AuthResponse(
                 generateJwtToken(email),
                 refreshToken
         );
