@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -20,10 +21,10 @@ public class BookController {
 
     @GetMapping("/books")
     public PagedResponse<BookShortResponse> findBooks(@RequestParam(required = false) String keyword,
-                                                        @PageableDefault(size = 6, page = 0,
-                                                               sort = {"name", "author", "price"},
-                                                               direction = Sort.Direction.DESC)
-                                                       Pageable pageable) {
+                                                      @PageableDefault(size = 6, page = 0,
+                                                              sort = {"name", "author", "price"},
+                                                              direction = Sort.Direction.DESC)
+                                                      Pageable pageable) {
         if (keyword != null && !keyword.isBlank()) {
             return bookService.getBooksByKeyword(keyword, pageable);
         }
@@ -35,6 +36,7 @@ public class BookController {
         return bookService.getBook(id);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/books")
     public BookDetailResponse addBook(@RequestBody CreateBookRequest book) {
         return bookService.addBook(book);
@@ -46,9 +48,9 @@ public class BookController {
         return bookService.updateBook(id, book);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/books/{id}")
     public void deleteBook(@PathVariable Long id) {
         bookService.delete(id);
     }
-
 }
