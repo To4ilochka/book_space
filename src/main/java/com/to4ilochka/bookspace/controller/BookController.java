@@ -6,6 +6,7 @@ import com.to4ilochka.bookspace.dto.book.BookShortResponse;
 import com.to4ilochka.bookspace.dto.book.CreateBookRequest;
 import com.to4ilochka.bookspace.dto.book.UpdateBookRequest;
 import com.to4ilochka.bookspace.service.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,19 +33,19 @@ public class BookController {
     }
 
     @GetMapping("/books/{id}")
-    public BookDetailResponse getBookByName(@PathVariable Long id) {
+    public BookDetailResponse getBookById(@PathVariable Long id) {
         return bookService.getBook(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/books")
-    public BookDetailResponse addBook(@RequestBody CreateBookRequest book) {
+    public BookDetailResponse addBook(@RequestBody @Valid CreateBookRequest book) {
         return bookService.addBook(book);
     }
 
     @PutMapping("/books/{id}")
     public BookDetailResponse updateBook(@PathVariable Long id,
-                                         @RequestBody UpdateBookRequest book) {
+                                         @RequestBody @Valid UpdateBookRequest book) {
         return bookService.updateBook(id, book);
     }
 

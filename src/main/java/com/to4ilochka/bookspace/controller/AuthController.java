@@ -5,6 +5,7 @@ import com.to4ilochka.bookspace.dto.auth.LoginRequest;
 import com.to4ilochka.bookspace.dto.auth.RefreshRequest;
 import com.to4ilochka.bookspace.dto.auth.RegisterRequest;
 import com.to4ilochka.bookspace.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +22,17 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerClient(request));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshRequest request) {
+    public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
     }
 }

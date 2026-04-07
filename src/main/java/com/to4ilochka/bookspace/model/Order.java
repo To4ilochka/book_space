@@ -23,7 +23,7 @@ public class Order {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
 

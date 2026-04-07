@@ -18,24 +18,36 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true, updatable = false)
     private String name;
+
     @Column(nullable = false)
     private String genre;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AgeGroup ageGroup;
+
     @Column(nullable = false)
     private BigDecimal price;
+
     @Column(name = "publication_year", nullable = false)
     private LocalDate publicationDate;
+
     @Column(nullable = false)
     private String author;
+
     @Column(name = "number_of_pages", nullable = false)
     private Integer pages;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length = 2000)
     private String characteristics;
-    @Column()
+
+    @Column(length = 5000)
     private String description;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Language language;
 }

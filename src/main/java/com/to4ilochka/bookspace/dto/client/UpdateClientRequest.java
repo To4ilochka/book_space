@@ -1,6 +1,8 @@
 package com.to4ilochka.bookspace.dto.client;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record UpdateClientRequest(
-        String name
+        @NotBlank String name
 ) {
 }

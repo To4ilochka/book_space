@@ -4,9 +4,12 @@ import com.to4ilochka.bookspace.dto.client.ClientResponse;
 import com.to4ilochka.bookspace.dto.client.UpdateClientRequest;
 import com.to4ilochka.bookspace.security.CustomUserDetails;
 import com.to4ilochka.bookspace.service.ClientService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -15,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/clients")
+@Validated
 public class ClientController {
 
     private final ClientService clientService;
@@ -26,13 +30,13 @@ public class ClientController {
 
     @PutMapping("/me")
     public ResponseEntity<ClientResponse> updateMyProfile(@AuthenticationPrincipal CustomUserDetails user,
-                                                          @RequestBody UpdateClientRequest request) {
+                                                          @RequestBody @Valid UpdateClientRequest request) {
         return ResponseEntity.ok(clientService.updateMyProfile(user.id(), request));
     }
 
     @PostMapping("/me/balance")
     public ResponseEntity<Void> addBalance(@AuthenticationPrincipal CustomUserDetails user,
-                                           @RequestParam BigDecimal amount) {
+                                           @RequestParam @Positive(message = "The amount must be greater than 0") BigDecimal amount) {
         clientService.addBalance(user.id(), amount);
         return ResponseEntity.ok().build();
     }
