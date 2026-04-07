@@ -1,25 +1,121 @@
 package com.to4ilochka.bookspace.service.impl;
 
-import com.to4ilochka.bookspace.dto.order.OrderDTO;
+import com.to4ilochka.bookspace.dto.order.CreateOrderRequest;
+import com.to4ilochka.bookspace.dto.order.OrderItemRequest;
+import com.to4ilochka.bookspace.dto.order.OrderResponse;
+import com.to4ilochka.bookspace.mapper.OrderMapper;
+import com.to4ilochka.bookspace.model.*;
+import com.to4ilochka.bookspace.model.enums.OrderStatus;
+import com.to4ilochka.bookspace.repo.BookRepository;
+import com.to4ilochka.bookspace.repo.ClientRepository;
+import com.to4ilochka.bookspace.repo.EmployeeRepository;
+import com.to4ilochka.bookspace.repo.OrderRepository;
 import com.to4ilochka.bookspace.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+
+    private final OrderRepository orderRepository;
+    private final ClientRepository clientRepository;
+    private final EmployeeRepository employeeRepository;
+    private final BookRepository bookRepository;
+    private final OrderMapper orderMapper;
+
+    @Transactional
     @Override
-    public List<OrderDTO> getAllOrdersByClient(String email) {
-        return List.of();
+    public OrderResponse createOrder(Long clientId, CreateOrderRequest request) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+
+        List<Long> bookIds = request.items().stream()
+                .map(OrderItemRequest::bookId)
+                .toList();
+
+        List<Book> books = bookRepository.findAllById(bookIds);
+
+        if (books.size() != bookIds.size()) {
+            throw new IllegalArgumentException("One or more books not found");
+        }
+
+        Map<Long, Book> bookMap = books.stream()
+                .collect(Collectors.toMap(Book::getId, b -> b));
+
+        Order order = new Order();
+        order.setClient(client);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.CREATED);
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        List<BookItem> bookItems = new ArrayList<>();
+
+        for (OrderItemRequest itemRequest : request.items()) {
+            Book book = bookMap.get(itemRequest.bookId());
+
+            BookItem bookItem = new BookItem();
+            bookItem.setOrder(order);
+            bookItem.setBook(book);
+            bookItem.setQuantity(itemRequest.quantity());
+            bookItem.setPrice(book.getPrice());
+
+            BigDecimal itemTotal = book.getPrice().multiply(BigDecimal.valueOf(itemRequest.quantity()));
+            totalPrice = totalPrice.add(itemTotal);
+
+            bookItems.add(bookItem);
+        }
+
+        if (client.getBalance().compareTo(totalPrice) < 0) {
+            throw new IllegalArgumentException("Insufficient balance");
+        }
+
+        client.setBalance(client.getBalance().subtract(totalPrice));
+        clientRepository.save(client);
+
+        order.setPrice(totalPrice);
+        order.setBookItems(bookItems);
+
+        return orderMapper.toResponse(orderRepository.save(order));
     }
 
     @Override
-    public List<OrderDTO> getAllOrdersByEmployee(String email) {
-        return List.of();
+    public OrderResponse getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .map(orderMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
     }
 
     @Override
-    public OrderDTO addOrder(OrderDTO order) {
-        return null;
+    public List<OrderResponse> getMyOrders(Long clientId) {
+        return orderMapper.toResponseList(orderRepository.findAllByClientId(clientId));
+    }
+
+    @Override
+    public List<OrderResponse> getAllOrders() {
+        return orderMapper.toResponseList(orderRepository.findAll());
+    }
+
+    @Transactional
+    @Override
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, Long employeeId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+
+        order.setStatus(status);
+        order.setEmployee(employee);
+
+        return orderMapper.toResponse(orderRepository.save(order));
     }
 }
