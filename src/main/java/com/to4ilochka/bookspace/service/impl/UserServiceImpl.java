@@ -1,5 +1,7 @@
 package com.to4ilochka.bookspace.service.impl;
 
+import com.to4ilochka.bookspace.exception.BusinessValidationException;
+import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.model.User;
 import com.to4ilochka.bookspace.model.enums.Role;
 import com.to4ilochka.bookspace.repo.UserRepository;
@@ -20,7 +22,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void setLockStatus(Long userId, boolean isLocked, CustomUserDetails executor) {
         User targetUser = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         boolean targetIsAdmin = targetUser.getRoles().contains(Role.ROLE_ADMIN);
         boolean executorIsAdmin = executor.getAuthorities().stream()
@@ -31,9 +33,8 @@ public class UserServiceImpl implements UserService {
         }
 
         if (targetIsAdmin && isLocked) {
-            throw new IllegalArgumentException("Cannot lock an admin account");
+            throw new BusinessValidationException("Cannot lock an admin account");
         }
-
         targetUser.setLocked(isLocked);
         userRepository.save(targetUser);
     }

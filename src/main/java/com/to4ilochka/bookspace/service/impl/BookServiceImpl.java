@@ -1,16 +1,16 @@
 package com.to4ilochka.bookspace.service.impl;
 
-import com.to4ilochka.bookspace.dto.common.PagedResponse;
 import com.to4ilochka.bookspace.dto.book.BookDetailResponse;
 import com.to4ilochka.bookspace.dto.book.BookShortResponse;
 import com.to4ilochka.bookspace.dto.book.CreateBookRequest;
 import com.to4ilochka.bookspace.dto.book.UpdateBookRequest;
+import com.to4ilochka.bookspace.dto.common.PagedResponse;
+import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.BookMapper;
 import com.to4ilochka.bookspace.model.Book;
 import com.to4ilochka.bookspace.repo.BookRepository;
 import com.to4ilochka.bookspace.service.BookService;
 import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailResponse getBook(Long id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
 
         return bookMapper.toDetailResponse(book);
     }
@@ -55,7 +55,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailResponse updateBook(Long id, UpdateBookRequest updateBookRequest) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
 
 //        Dirty Checking of @Transactional (without save())
         bookMapper.updateEntityFromDto(updateBookRequest, book);
@@ -66,7 +66,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void delete(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new EntityNotFoundException("Book not found: " + id);
+            throw new ResourceNotFoundException("Book not found: " + id);
         }
         bookRepository.deleteById(id);
     }

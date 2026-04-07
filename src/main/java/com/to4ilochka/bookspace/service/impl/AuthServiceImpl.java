@@ -4,6 +4,8 @@ import com.to4ilochka.bookspace.dto.auth.AuthResponse;
 import com.to4ilochka.bookspace.dto.auth.LoginRequest;
 import com.to4ilochka.bookspace.dto.auth.RefreshRequest;
 import com.to4ilochka.bookspace.dto.auth.RegisterRequest;
+import com.to4ilochka.bookspace.exception.InvalidTokenException;
+import com.to4ilochka.bookspace.exception.ResourceAlreadyExistsException;
 import com.to4ilochka.bookspace.model.Client;
 import com.to4ilochka.bookspace.model.User;
 import com.to4ilochka.bookspace.model.enums.Role;
@@ -43,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse registerClient(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already in use");
+            throw new ResourceAlreadyExistsException("Email is already in use");
         }
 
         User user = new User();
@@ -64,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse refresh(RefreshRequest request) {
         if (!jwtService.validateJwtToken(request.refreshToken())) {
-            throw new IllegalArgumentException("Invalid refresh token");
+            throw new InvalidTokenException("Invalid refresh token");
         }
 
         String email = jwtService.getEmailFromToken(request.refreshToken());

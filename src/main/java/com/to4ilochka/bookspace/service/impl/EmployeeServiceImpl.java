@@ -3,6 +3,8 @@ package com.to4ilochka.bookspace.service.impl;
 import com.to4ilochka.bookspace.dto.employee.CreateEmployeeRequest;
 import com.to4ilochka.bookspace.dto.employee.EmployeeResponse;
 import com.to4ilochka.bookspace.dto.employee.UpdateEmployeeRequest;
+import com.to4ilochka.bookspace.exception.ResourceAlreadyExistsException;
+import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.EmployeeMapper;
 import com.to4ilochka.bookspace.model.Employee;
 import com.to4ilochka.bookspace.model.enums.Role;
@@ -29,7 +31,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse getMyProfile(Long employeeId) {
         return employeeRepository.findById(employeeId)
                 .map(employeeMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
     }
 
     @Override
@@ -41,14 +43,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse getEmployeeById(Long id) {
         return employeeRepository.findById(id)
                 .map(employeeMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
     }
 
     @Transactional
     @Override
     public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new ResourceAlreadyExistsException("Email already exists");
         }
 
         Employee employee = employeeMapper.toEntity(request);
@@ -62,7 +64,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponse updateEmployee(Long id, UpdateEmployeeRequest request) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
         employee.getUser().setName(request.name());
         employee.setPhone(request.phone());

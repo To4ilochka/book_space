@@ -2,6 +2,8 @@ package com.to4ilochka.bookspace.service.impl;
 
 import com.to4ilochka.bookspace.dto.client.ClientResponse;
 import com.to4ilochka.bookspace.dto.client.UpdateClientRequest;
+import com.to4ilochka.bookspace.exception.BusinessValidationException;
+import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.ClientMapper;
 import com.to4ilochka.bookspace.model.Client;
 import com.to4ilochka.bookspace.repo.ClientRepository;
@@ -23,14 +25,14 @@ public class ClientServiceImpl implements ClientService {
     public ClientResponse getMyProfile(Long userId) {
         return clientRepository.findById(userId)
                 .map(clientMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
     }
 
     @Transactional
     @Override
     public ClientResponse updateMyProfile(Long userId, UpdateClientRequest request) {
         Client client = clientRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         client.getUser().setName(request.name());
         return clientMapper.toResponse(clientRepository.save(client));
@@ -40,10 +42,10 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void addBalance(Long userId, BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
+            throw new BusinessValidationException("Amount must be positive");
         }
         Client client = clientRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         client.setBalance(client.getBalance().add(amount));
         clientRepository.save(client);

@@ -3,6 +3,8 @@ package com.to4ilochka.bookspace.service.impl;
 import com.to4ilochka.bookspace.dto.order.CreateOrderRequest;
 import com.to4ilochka.bookspace.dto.order.OrderItemRequest;
 import com.to4ilochka.bookspace.dto.order.OrderResponse;
+import com.to4ilochka.bookspace.exception.InsufficientBalanceException;
+import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.OrderMapper;
 import com.to4ilochka.bookspace.model.*;
 import com.to4ilochka.bookspace.model.enums.OrderStatus;
@@ -36,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createOrder(Long clientId, CreateOrderRequest request) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         List<Long> bookIds = request.items().stream()
                 .map(OrderItemRequest::bookId)
@@ -45,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
         List<Book> books = bookRepository.findAllById(bookIds);
 
         if (books.size() != bookIds.size()) {
-            throw new IllegalArgumentException("One or more books not found");
+            throw new ResourceNotFoundException("One or more books not found");
         }
 
         Map<Long, Book> bookMap = books.stream()
@@ -75,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (client.getBalance().compareTo(totalPrice) < 0) {
-            throw new IllegalArgumentException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance");
         }
 
         client.setBalance(client.getBalance().subtract(totalPrice));
@@ -91,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .map(orderMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
     }
 
     @Override
@@ -108,10 +110,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, Long employeeId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
         order.setStatus(status);
         order.setEmployee(employee);
