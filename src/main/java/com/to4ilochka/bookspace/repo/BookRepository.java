@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
+
     Page<Book> findAllByNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(
             String name, String author, Pageable pageable
     );

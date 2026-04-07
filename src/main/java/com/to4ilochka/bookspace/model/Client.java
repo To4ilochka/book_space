@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "clients")
 public class Client {
+
     @Id
     private Long id;
 

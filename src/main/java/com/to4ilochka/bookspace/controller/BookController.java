@@ -12,12 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class BookController {
+
     private final BookService bookService;
 
     @GetMapping("/books")
@@ -37,12 +39,14 @@ public class BookController {
         return bookService.getBook(id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/books")
     public BookDetailResponse addBook(@RequestBody @Valid CreateBookRequest book) {
         return bookService.addBook(book);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @PutMapping("/books/{id}")
     public BookDetailResponse updateBook(@PathVariable Long id,
                                          @RequestBody @Valid UpdateBookRequest book) {

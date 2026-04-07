@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @PreAuthorize("hasRole('CLIENT')")
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@AuthenticationPrincipal CustomUserDetails user,
                                                      @RequestBody @Valid CreateOrderRequest request) {
@@ -37,6 +39,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE') or @orderSecurity.isOwner(#id, authentication.principal.id)")
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));

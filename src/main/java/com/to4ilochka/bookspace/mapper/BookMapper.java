@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface BookMapper {
+
     @Mapping(target = "id", ignore = true)
     Book toEntity(CreateBookRequest createBookRequest);
 

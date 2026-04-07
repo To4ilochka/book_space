@@ -6,6 +6,7 @@ import com.to4ilochka.bookspace.dto.auth.RefreshRequest;
 import com.to4ilochka.bookspace.dto.auth.RegisterRequest;
 
 public interface AuthService {
+
     AuthResponse login(LoginRequest request);
 
     AuthResponse registerClient(RegisterRequest request);
