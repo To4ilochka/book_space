@@ -14,10 +14,11 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,3 +32,19 @@ build/
 
 ### VS Code ###
 .vscode/
+.history/
+*.code-workspace
+
+### OS ###
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### Logs & Local ###
+*.log
+*.gz
+.env
+*.local
