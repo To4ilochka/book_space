@@ -5,12 +5,12 @@ import com.to4ilochka.bookspace.dto.book.BookShortResponse;
 import com.to4ilochka.bookspace.dto.book.CreateBookRequest;
 import com.to4ilochka.bookspace.dto.book.UpdateBookRequest;
 import com.to4ilochka.bookspace.dto.common.PagedResponse;
+import com.to4ilochka.bookspace.exception.ResourceAlreadyExistsException;
 import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.BookMapper;
 import com.to4ilochka.bookspace.model.Book;
 import com.to4ilochka.bookspace.repo.BookRepository;
 import com.to4ilochka.bookspace.service.BookService;
-import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailResponse addBook(CreateBookRequest createBookRequest) {
         if (bookRepository.existsByName(createBookRequest.name())) {
-            throw new EntityExistsException("Book with id " + createBookRequest.name() + " already exists");
+            throw new ResourceAlreadyExistsException("Book with name " + createBookRequest.name() + " already exists");
         }
 
         Book book = bookRepository.save(bookMapper.toEntity(createBookRequest));
@@ -57,8 +57,8 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
 
-//        Dirty Checking of @Transactional (without save())
         bookMapper.updateEntityFromDto(updateBookRequest, book);
+        book = bookRepository.save(book);
         return bookMapper.toDetailResponse(book);
     }
 
