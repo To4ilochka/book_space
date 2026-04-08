@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record CreateOrderRequest(
-        @NotEmpty List<@Valid OrderItemRequest> items
+        @NotEmpty(message = "{order.items.notempty}")
+        List<@Valid OrderItemRequest> items
 ) {
 }

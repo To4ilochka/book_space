@@ -9,10 +9,22 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public record CreateEmployeeRequest(
-        @NotBlank @Email String email,
-        @NotBlank @Size(min = 6) String password,
-        @NotBlank String name,
-        @NotBlank String phone,
-        @NotNull @Past LocalDate birthDate
+        @NotBlank(message = "{auth.email.notblank}")
+        @Email(message = "{auth.email.invalid}")
+        String email,
+
+        @NotBlank(message = "{auth.password.notblank}")
+        @Size(min = 6, message = "{auth.password.size}")
+        String password,
+
+        @NotBlank(message = "{employee.name.notblank}")
+        String name,
+
+        @NotBlank(message = "{employee.phone.notblank}")
+        String phone,
+
+        @NotNull(message = "{employee.birthdate.notnull}")
+        @Past(message = "{employee.birthdate.past}")
+        LocalDate birthDate
 ) {
 }

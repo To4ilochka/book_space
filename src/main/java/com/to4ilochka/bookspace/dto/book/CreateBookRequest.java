@@ -12,15 +12,37 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record CreateBookRequest(
-        @NotBlank String name,
-        @NotBlank String genre,
-        @NotNull AgeGroup ageGroup,
-        @NotNull @Positive BigDecimal price,
-        @NotNull @PastOrPresent LocalDate publicationDate,
-        @NotBlank String author,
-        @NotNull @Positive Integer pages,
-        @Size(max = 2000) String characteristics,
-        @Size(max = 5000) String description,
-        @NotNull Language language
+        @NotBlank(message = "{book.name.notblank}")
+        String name,
+
+        @NotBlank(message = "{book.genre.notblank}")
+        String genre,
+
+        @NotNull(message = "{book.agegroup.notnull}")
+        AgeGroup ageGroup,
+
+        @NotNull(message = "{book.price.notnull}")
+        @Positive(message = "{book.price.positive}")
+        BigDecimal price,
+
+        @NotNull(message = "{book.date.notnull}")
+        @PastOrPresent(message = "{book.date.past}")
+        LocalDate publicationDate,
+
+        @NotBlank(message = "{book.author.notblank}")
+        String author,
+
+        @NotNull(message = "{book.pages.notnull}")
+        @Positive(message = "{book.pages.positive}")
+        Integer pages,
+
+        @Size(max = 2000, message = "{book.characteristics.size}")
+        String characteristics,
+
+        @Size(max = 5000, message = "{book.description.size}")
+        String description,
+
+        @NotNull(message = "{book.language.notnull}")
+        Language language
 ) {
 }

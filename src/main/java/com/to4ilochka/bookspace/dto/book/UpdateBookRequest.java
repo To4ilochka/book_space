@@ -11,13 +11,26 @@ import java.time.LocalDate;
 
 public record UpdateBookRequest(
         String genre,
+
         AgeGroup ageGroup,
-        @Positive BigDecimal price,
-        @PastOrPresent LocalDate publicationDate,
+
+        @Positive(message = "{book.price.positive}")
+        BigDecimal price,
+
+        @PastOrPresent(message = "{book.date.past}")
+        LocalDate publicationDate,
+
         String author,
-        @Positive Integer pages,
-        @Size(max = 2000) String characteristics,
-        @Size(max = 5000) String description,
+
+        @Positive(message = "{book.pages.positive}")
+        Integer pages,
+
+        @Size(max = 2000, message = "{book.characteristics.size}")
+        String characteristics,
+
+        @Size(max = 5000, message = "{book.description.size}")
+        String description,
+
         Language language
 ) {
 }

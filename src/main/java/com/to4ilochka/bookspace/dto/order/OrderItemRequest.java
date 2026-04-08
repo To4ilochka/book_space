@@ -4,7 +4,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record OrderItemRequest(
-        @NotNull Long bookId,
-        @NotNull @Min(1) Integer quantity
+        @NotNull(message = "{order.bookid.notnull}")
+        Long bookId,
+
+        @NotNull(message = "{order.quantity.notnull}")
+        @Min(value = 1, message = "{order.quantity.min}")
+        Integer quantity
 ) {
 }
