@@ -1,7 +1,6 @@
-package com.to4ilochka.bookspace.handler;
+package com.to4ilochka.bookspace.exception;
 
 import com.to4ilochka.bookspace.dto.common.ErrorResponse;
-import com.to4ilochka.bookspace.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
