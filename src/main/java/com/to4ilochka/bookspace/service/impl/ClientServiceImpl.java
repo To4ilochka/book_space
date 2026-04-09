@@ -17,6 +17,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;

@@ -38,7 +38,7 @@ public class LoggingAspect {
 
             return result;
         } catch (IllegalArgumentException e) {
-            log.error("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
+            log.warn("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
                     joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
             throw e;
         }
@@ -46,9 +46,23 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "controllerPointcut() || servicePointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        log.error("Exception in {}.{}() with cause = '{}'",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
-                e.getCause() != null ? e.getCause() : "NULL");
+        if (isBusinessException(e)) {
+            log.warn("Business logic exception in {}.{}() with message = '{}'",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(),
+                    e.getMessage());
+        } else {
+            log.error("System exception in {}.{}() with cause = '{}'",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(),
+                    e.getCause() != null ? e.getCause() : "NULL", e);
+        }
+    }
+
+    private boolean isBusinessException(Throwable e) {
+        return e instanceof RuntimeException &&
+                !(e instanceof NullPointerException) &&
+                !(e instanceof IndexOutOfBoundsException) &&
+                !(e instanceof ClassCastException);
     }
 }

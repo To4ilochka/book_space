@@ -1,8 +1,10 @@
 package com.to4ilochka.bookspace.service;
 
+import com.to4ilochka.bookspace.dto.common.PagedResponse;
 import com.to4ilochka.bookspace.dto.order.CreateOrderRequest;
 import com.to4ilochka.bookspace.dto.order.OrderResponse;
 import com.to4ilochka.bookspace.model.enums.OrderStatus;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,9 +14,9 @@ public interface OrderService {
 
     OrderResponse getOrderById(Long orderId);
 
-    List<OrderResponse> getMyOrders(Long clientId);
+    PagedResponse<OrderResponse> getMyOrders(Long clientId, Pageable pageable);
 
-    List<OrderResponse> getAllOrders();
+    PagedResponse<OrderResponse> getAllOrders(String keyword, Pageable pageable);
 
     OrderResponse updateOrderStatus(Long orderId, OrderStatus status, Long employeeId);
 }

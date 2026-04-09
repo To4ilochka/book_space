@@ -7,7 +7,9 @@ import com.to4ilochka.bookspace.exception.ResourceAlreadyExistsException;
 import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.EmployeeMapper;
 import com.to4ilochka.bookspace.model.Employee;
+import com.to4ilochka.bookspace.model.User;
 import com.to4ilochka.bookspace.model.enums.Role;
+import com.to4ilochka.bookspace.repo.ClientRepository;
 import com.to4ilochka.bookspace.repo.EmployeeRepository;
 import com.to4ilochka.bookspace.repo.UserRepository;
 import com.to4ilochka.bookspace.service.EmployeeService;
@@ -20,12 +22,13 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
     private final EmployeeMapper employeeMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public EmployeeResponse getMyProfile(Long employeeId) {
@@ -49,13 +52,23 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new ResourceAlreadyExistsException("Email already exists");
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException("User with this email not found"));
+
+        if (!clientRepository.existsById(user.getId())) {
+            throw new ResourceNotFoundException("Client must be registered as a client first");
         }
 
-        Employee employee = employeeMapper.toEntity(request);
-        employee.getUser().setPassword(passwordEncoder.encode(request.password()));
-        employee.getUser().getRoles().add(Role.ROLE_EMPLOYEE);
+        if (employeeRepository.existsById(user.getId())) {
+            throw new ResourceAlreadyExistsException("Client is already an employee");
+        }
+
+        Employee employee = new Employee();
+        employee.setUser(user);
+
+        employeeMapper.updateEntityFromRequest(request, employee);
+
+        user.getRoles().add(Role.ROLE_EMPLOYEE);
 
         return employeeMapper.toResponse(employeeRepository.save(employee));
     }
@@ -70,5 +83,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPhone(request.phone());
 
         return employeeMapper.toResponse(employeeRepository.save(employee));
+    }
+
+    @Transactional
+    @Override
+    public void fireEmployee(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+
+        User user = employee.getUser();
+        user.getRoles().remove(Role.ROLE_EMPLOYEE);
+        userRepository.save(user);
+
+        employeeRepository.deleteEmployeeById(employeeId);
     }
 }

@@ -1,6 +1,7 @@
 package com.to4ilochka.bookspace.repo;
 
 import com.to4ilochka.bookspace.model.Book;
+import com.to4ilochka.bookspace.model.enums.AgeGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
                 keyword, keyword, pageable
         );
     }
+
+    Page<Book> findAllByAgeGroup(AgeGroup ageGroup, Pageable pageable);
+
+    Page<Book> findAllByAgeGroupAndNameContainingIgnoreCaseOrAgeGroupAndAuthorContainingIgnoreCase(
+            AgeGroup ageGroup, String keyword, AgeGroup ageGroup1, String keyword1, Pageable pageable
+    );
 }

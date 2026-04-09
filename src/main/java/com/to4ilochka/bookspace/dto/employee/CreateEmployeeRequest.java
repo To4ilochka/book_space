@@ -13,10 +13,6 @@ public record CreateEmployeeRequest(
         @Email(message = "{auth.email.invalid}")
         String email,
 
-        @NotBlank(message = "{auth.password.notblank}")
-        @Size(min = 6, message = "{auth.password.size}")
-        String password,
-
         @NotBlank(message = "{employee.name.notblank}")
         String name,
 

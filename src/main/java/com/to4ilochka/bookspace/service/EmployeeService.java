@@ -17,4 +17,6 @@ public interface EmployeeService {
     EmployeeResponse createEmployee(CreateEmployeeRequest request);
 
     EmployeeResponse updateEmployee(Long id, UpdateEmployeeRequest request);
+
+    void fireEmployee(Long id);
 }

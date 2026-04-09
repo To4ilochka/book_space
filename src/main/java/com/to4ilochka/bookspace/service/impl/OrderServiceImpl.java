@@ -1,5 +1,6 @@
 package com.to4ilochka.bookspace.service.impl;
 
+import com.to4ilochka.bookspace.dto.common.PagedResponse;
 import com.to4ilochka.bookspace.dto.order.CreateOrderRequest;
 import com.to4ilochka.bookspace.dto.order.OrderItemRequest;
 import com.to4ilochka.bookspace.dto.order.OrderResponse;
@@ -14,6 +15,8 @@ import com.to4ilochka.bookspace.repo.EmployeeRepository;
 import com.to4ilochka.bookspace.repo.OrderRepository;
 import com.to4ilochka.bookspace.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -97,13 +101,43 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getMyOrders(Long clientId) {
-        return orderMapper.toResponseList(orderRepository.findAllByClientId(clientId));
+    public PagedResponse<OrderResponse> getMyOrders(Long clientId, Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findByClientId(clientId, pageable);
+
+        List<OrderResponse> content = orderMapper.toResponseList(orderPage.getContent());
+
+        return new PagedResponse<>(
+                content,
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages(),
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                orderPage.isFirst(),
+                orderPage.isLast()
+        );
     }
 
     @Override
-    public List<OrderResponse> getAllOrders() {
-        return orderMapper.toResponseList(orderRepository.findAll());
+    public PagedResponse<OrderResponse> getAllOrders(String keyword, Pageable pageable) {
+        Page<Order> orderPage;
+
+        if (keyword != null && !keyword.isBlank()) {
+            orderPage = orderRepository.searchOrders(keyword, pageable);
+        } else {
+            orderPage = orderRepository.findAll(pageable);
+        }
+
+        List<OrderResponse> content = orderMapper.toResponseList(orderPage.getContent());
+
+        return new PagedResponse<>(
+                content,
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages(),
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                orderPage.isFirst(),
+                orderPage.isLast()
+        );
     }
 
     @Transactional

@@ -9,6 +9,7 @@ import com.to4ilochka.bookspace.exception.ResourceAlreadyExistsException;
 import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.BookMapper;
 import com.to4ilochka.bookspace.model.Book;
+import com.to4ilochka.bookspace.model.enums.AgeGroup;
 import com.to4ilochka.bookspace.repo.BookRepository;
 import com.to4ilochka.bookspace.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +25,32 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     @Override
-    public PagedResponse<BookShortResponse> getBooks(Pageable pageable) {
+    public PagedResponse<BookShortResponse> getBooks(AgeGroup ageGroup, Pageable pageable) {
+        if (ageGroup != null) {
+            return bookMapper.toPagedResponse(
+                    bookRepository.findAllByAgeGroup(ageGroup, pageable)
+            );
+        }
+
         return bookMapper.toPagedResponse(bookRepository.findAll(pageable));
     }
 
     @Override
-    public PagedResponse<BookShortResponse> getBooksByKeyword(String keyword, Pageable pageable) {
-        return bookMapper.toPagedResponse(bookRepository.searchByKeyword(keyword, pageable));
+    public PagedResponse<BookShortResponse> getBooksByKeywordAndAgeGroup(String keyword, AgeGroup ageGroup, Pageable pageable) {
+        if (ageGroup != null) {
+            return bookMapper.toPagedResponse(
+                    bookRepository
+                            .findAllByAgeGroupAndNameContainingIgnoreCaseOrAgeGroupAndAuthorContainingIgnoreCase(
+                                    ageGroup, keyword,
+                                    ageGroup, keyword,
+                                    pageable
+                            )
+            );
+        }
+
+        return bookMapper.toPagedResponse(
+                bookRepository.searchByKeyword(keyword, pageable)
+        );
     }
 
     @Override
