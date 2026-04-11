@@ -65,20 +65,6 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void getAllEmployees_Success() {
-        List<Employee> employees = List.of(new Employee(), new Employee());
-        List<EmployeeResponse> expectedResponse = List.of(mock(EmployeeResponse.class), mock(EmployeeResponse.class));
-
-        when(employeeRepository.findAll()).thenReturn(employees);
-        when(employeeMapper.toResponseList(employees)).thenReturn(expectedResponse);
-
-        List<EmployeeResponse> result = employeeService.getAllEmployees();
-
-        assertEquals(expectedResponse, result);
-        assertEquals(2, result.size());
-    }
-
-    @Test
     void getEmployeeById_Success() {
         Long employeeId = 1L;
         Employee employee = new Employee();

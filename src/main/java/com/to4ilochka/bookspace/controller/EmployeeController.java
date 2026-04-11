@@ -26,11 +26,6 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.getMyProfile(user.id()));
     }
 
-    @GetMapping
-    public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));

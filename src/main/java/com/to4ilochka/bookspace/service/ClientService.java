@@ -13,6 +13,4 @@ public interface ClientService {
     ClientResponse updateMyProfile(Long userId, UpdateClientRequest request);
 
     void addBalance(Long userId, BigDecimal amount);
-
-    List<ClientResponse> getAllClients();
 }

@@ -10,8 +10,6 @@ public interface EmployeeService {
 
     EmployeeResponse getMyProfile(Long employeeId);
 
-    List<EmployeeResponse> getAllEmployees();
-
     EmployeeResponse getEmployeeById(Long id);
 
     EmployeeResponse createEmployee(CreateEmployeeRequest request);

@@ -121,18 +121,4 @@ class ClientServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> clientService.addBalance(userId, amount));
         verify(clientRepository, never()).save(any());
     }
-
-    @Test
-    void getAllClients_Success() {
-        List<Client> clients = List.of(new Client(), new Client());
-        List<ClientResponse> expectedResponse = List.of(mock(ClientResponse.class), mock(ClientResponse.class));
-
-        when(clientRepository.findAll()).thenReturn(clients);
-        when(clientMapper.toResponseList(clients)).thenReturn(expectedResponse);
-
-        List<ClientResponse> result = clientService.getAllClients();
-
-        assertEquals(expectedResponse, result);
-        assertEquals(2, result.size());
-    }
 }

@@ -40,9 +40,4 @@ public class ClientController {
         clientService.addBalance(user.id(), amount);
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping
-    public ResponseEntity<List<ClientResponse>> getAllClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
-    }
 }

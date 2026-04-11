@@ -38,11 +38,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeResponse> getAllEmployees() {
-        return employeeMapper.toResponseList(employeeRepository.findAll());
-    }
-
-    @Override
     public EmployeeResponse getEmployeeById(Long id) {
         return employeeRepository.findById(id)
                 .map(employeeMapper::toResponse)

@@ -52,9 +52,4 @@ public class ClientServiceImpl implements ClientService {
         client.setBalance(client.getBalance().add(amount));
         clientRepository.save(client);
     }
-
-    @Override
-    public List<ClientResponse> getAllClients() {
-        return clientMapper.toResponseList(clientRepository.findAll());
-    }
 }
