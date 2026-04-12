@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class LoggingAspect {
         return result;
     }
 
-    @AfterThrowing(pointcut = "controllerPointcut() || servicePointcut()", throwing = "e")
+    @AfterThrowing(pointcut = "controllerPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         if (e instanceof IllegalArgumentException) {
             log.warn("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
@@ -58,6 +59,6 @@ public class LoggingAspect {
     }
 
     private boolean isBusinessException(Throwable e) {
-        return e instanceof AppBusinessException;
+        return e instanceof AppBusinessException || e instanceof AuthenticationException;
     }
 }

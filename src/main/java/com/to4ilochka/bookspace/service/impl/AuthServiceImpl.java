@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse registerClient(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new ResourceAlreadyExistsException("Email is already in use");
+            throw new ResourceAlreadyExistsException("auth.email.exists");
         }
 
         User user = new User();
@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse refresh(RefreshRequest request) {
         if (!jwtService.validateJwtToken(request.refreshToken())) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new InvalidTokenException("auth.token.invalid");
         }
 
         String email = jwtService.getEmailFromToken(request.refreshToken());

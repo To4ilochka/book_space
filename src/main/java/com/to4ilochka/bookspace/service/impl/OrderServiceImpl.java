@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createOrder(Long clientId, CreateOrderRequest request) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("client.notfound"));
 
         List<Long> bookIds = request.items().stream()
                 .map(OrderItemRequest::bookId)
@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
         List<Book> books = bookRepository.findAllById(bookIds);
 
         if (books.size() != bookIds.size()) {
-            throw new ResourceNotFoundException("One or more books not found");
+            throw new ResourceNotFoundException("order.books.notfound");
         }
 
         Map<Long, Book> bookMap = books.stream()
@@ -81,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (client.getBalance().compareTo(totalPrice) < 0) {
-            throw new InsufficientBalanceException("Insufficient balance");
+            throw new InsufficientBalanceException("order.balance.insufficient");
         }
 
         client.setBalance(client.getBalance().subtract(totalPrice));
@@ -97,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .map(orderMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("order.notfound"));
     }
 
     @Override
@@ -144,10 +144,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, Long employeeId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("order.notfound"));
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("employee.notfound"));
 
         order.setStatus(status);
         order.setEmployee(employee);

@@ -54,15 +54,15 @@ public class JwtService {
                     .getPayload();
             return true;
         } catch (ExpiredJwtException expEx) {
-            log.error("Expired JwtException", expEx);
+            log.warn("JWT token is expired: {}", expEx.getMessage());
         } catch (UnsupportedJwtException expEx) {
-            log.error("Unsupported JwtException", expEx);
+            log.warn("JWT token is unsupported: {}", expEx.getMessage());
         } catch (MalformedJwtException expEx) {
-            log.error("Malformed JwtException", expEx);
+            log.warn("Invalid JWT token: {}", expEx.getMessage());
         } catch (SecurityException expEx) {
-            log.error("Security Exception", expEx);
+            log.warn("JWT signature validation failed: {}", expEx.getMessage());
         } catch (Exception expEx) {
-            log.error("Invalid token", expEx);
+            log.warn("Invalid JWT token: {}", expEx.getMessage());
         }
         return false;
     }

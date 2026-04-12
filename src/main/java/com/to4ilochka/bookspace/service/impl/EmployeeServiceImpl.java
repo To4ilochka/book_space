@@ -34,28 +34,28 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse getMyProfile(Long employeeId) {
         return employeeRepository.findById(employeeId)
                 .map(employeeMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("employee.notfound"));
     }
 
     @Override
     public EmployeeResponse getEmployeeById(Long id) {
         return employeeRepository.findById(id)
                 .map(employeeMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("employee.notfound"));
     }
 
     @Transactional
     @Override
     public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new ResourceNotFoundException("User with this email not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("user.notfound.email"));
 
         if (!clientRepository.existsById(user.getId())) {
-            throw new ResourceNotFoundException("Client must be registered as a client first");
+            throw new ResourceNotFoundException("employee.client.required");
         }
 
         if (employeeRepository.existsById(user.getId())) {
-            throw new ResourceAlreadyExistsException("Client is already an employee");
+            throw new ResourceAlreadyExistsException("employee.already.exists");
         }
 
         Employee employee = new Employee();
@@ -72,7 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponse updateEmployee(Long id, UpdateEmployeeRequest request) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("employee.notfound"));
 
         employee.getUser().setName(request.name());
         employee.setPhone(request.phone());
@@ -84,7 +84,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void fireEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("employee.notfound"));
 
         User user = employee.getUser();
         user.getRoles().remove(Role.ROLE_EMPLOYEE);

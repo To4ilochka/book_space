@@ -56,7 +56,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailResponse getBook(Long id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("book.notfound"));
 
         return bookMapper.toDetailResponse(book);
     }
@@ -65,7 +65,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailResponse addBook(CreateBookRequest createBookRequest) {
         if (bookRepository.existsByName(createBookRequest.name())) {
-            throw new ResourceAlreadyExistsException("Book with name " + createBookRequest.name() + " already exists");
+            throw new ResourceAlreadyExistsException("book.exists");
         }
 
         Book book = bookRepository.save(bookMapper.toEntity(createBookRequest));
@@ -76,7 +76,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailResponse updateBook(Long id, UpdateBookRequest updateBookRequest) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("book.notfound"));
 
         bookMapper.updateEntityFromDto(updateBookRequest, book);
         book = bookRepository.save(book);
@@ -87,7 +87,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void delete(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Book not found: " + id);
+            throw new ResourceNotFoundException("book.notfound");
         }
         bookRepository.deleteById(id);
     }

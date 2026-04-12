@@ -30,18 +30,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void setLockStatus(Long userId, boolean isLocked, CustomUserDetails executor) {
         User targetUser = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("user.notfound"));
 
         boolean targetIsAdmin = targetUser.getRoles().contains(Role.ROLE_ADMIN);
         boolean executorIsAdmin = executor.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(Role.ROLE_ADMIN.name()));
 
         if (targetIsAdmin && !executorIsAdmin) {
-            throw new AccessDeniedException("Employees cannot modify admin accounts");
+            throw new AccessDeniedException("user.admin.modify.denied");
         }
 
         if (targetIsAdmin && isLocked) {
-            throw new BusinessValidationException("Cannot lock an admin account");
+            throw new BusinessValidationException("user.admin.lock.denied");
         }
         targetUser.setLocked(isLocked);
         userRepository.save(targetUser);
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("user.notfound"));
 
         return userMapper.toResponse(user);
     }
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void grantAdminRole(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("user.notfound"));
 
         user.getRoles().add(Role.ROLE_ADMIN);
         userRepository.save(user);

@@ -27,14 +27,14 @@ public class ClientServiceImpl implements ClientService {
     public ClientResponse getMyProfile(Long userId) {
         return clientRepository.findById(userId)
                 .map(clientMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("client.notfound"));
     }
 
     @Transactional
     @Override
     public ClientResponse updateMyProfile(Long userId, UpdateClientRequest request) {
         Client client = clientRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("client.notfound"));
 
         client.getUser().setName(request.name());
         return clientMapper.toResponse(clientRepository.save(client));
@@ -44,10 +44,10 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void addBalance(Long userId, BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessValidationException("Amount must be positive");
+            throw new BusinessValidationException("client.balance.positive");
         }
         Client client = clientRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("client.notfound"));
 
         client.setBalance(client.getBalance().add(amount));
         clientRepository.save(client);
