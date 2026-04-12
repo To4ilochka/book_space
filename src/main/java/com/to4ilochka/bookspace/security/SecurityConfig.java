@@ -1,6 +1,8 @@
 package com.to4ilochka.bookspace.security;
 
 import com.to4ilochka.bookspace.security.jwt.JwtFilter;
+import com.to4ilochka.bookspace.security.oauth2.CustomOAuth2UserServiceImpl;
+import com.to4ilochka.bookspace.security.oauth2.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final CustomOAuth2UserServiceImpl customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
@@ -39,7 +43,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/api/auth/**", "/ui/books/**").permitAll()
+                        .requestMatchers("/css/**", "/api/auth/**", "/ui/books/**", "/oauth2/**", "/login/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
@@ -65,6 +69,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/orders/*").authenticated()
 
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
