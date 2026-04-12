@@ -1,5 +1,6 @@
 package com.to4ilochka.bookspace.aop;
 
+import com.to4ilochka.bookspace.exception.AppBusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -27,26 +28,23 @@ public class LoggingAspect {
     @Around("controllerPointcut() || servicePointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.currentTimeMillis();
-        try {
-            Object result = joinPoint.proceed();
-            long elapsedTime = System.currentTimeMillis() - start;
+        Object result = joinPoint.proceed();
+        long elapsedTime = System.currentTimeMillis() - start;
 
-            log.info("Method: {}.{}() - Execution time: {} ms",
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(),
-                    elapsedTime);
+        log.info("Method: {}.{}() - Execution time: {} ms",
+                joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName(),
+                elapsedTime);
 
-            return result;
-        } catch (IllegalArgumentException e) {
-            log.warn("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
-                    joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
-            throw e;
-        }
+        return result;
     }
 
     @AfterThrowing(pointcut = "controllerPointcut() || servicePointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if (isBusinessException(e)) {
+        if (e instanceof IllegalArgumentException) {
+            log.warn("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()),
+                    joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+        } else if (isBusinessException(e)) {
             log.warn("Business logic exception in {}.{}() with message = '{}'",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(),
@@ -60,9 +58,6 @@ public class LoggingAspect {
     }
 
     private boolean isBusinessException(Throwable e) {
-        return e instanceof RuntimeException &&
-                !(e instanceof NullPointerException) &&
-                !(e instanceof IndexOutOfBoundsException) &&
-                !(e instanceof ClassCastException);
+        return e instanceof AppBusinessException;
     }
 }
