@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -33,22 +35,24 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("user.notfound"));
 
         boolean targetIsAdmin = targetUser.getRoles().contains(Role.ROLE_ADMIN);
-        boolean executorIsAdmin = executor.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(Role.ROLE_ADMIN.name()));
+        boolean targetIsEmployee = targetUser.getRoles().contains(Role.ROLE_EMPLOYEE);
 
-        if (targetIsAdmin && !executorIsAdmin) {
-            throw new AccessDeniedException("user.admin.modify.denied");
+        boolean executorIsAdmin = executor.getAuthorities().stream()
+                .anyMatch(a -> Objects.equals(a.getAuthority(), Role.ROLE_ADMIN.name()));
+
+        if (!executorIsAdmin && (targetIsAdmin || targetIsEmployee)) {
+            throw new AccessDeniedException("user.employee.modify.denied");
         }
 
         if (targetIsAdmin && isLocked) {
             throw new BusinessValidationException("user.admin.lock.denied");
         }
+
         targetUser.setLocked(isLocked);
         userRepository.save(targetUser);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("user.notfound"));
@@ -57,7 +61,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PagedResponse<UserResponse> getAllUsers(String keyword, Pageable pageable) {
         Page<User> page;
 

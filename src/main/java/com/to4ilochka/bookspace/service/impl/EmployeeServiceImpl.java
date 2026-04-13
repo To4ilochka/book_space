@@ -3,6 +3,7 @@ package com.to4ilochka.bookspace.service.impl;
 import com.to4ilochka.bookspace.dto.employee.CreateEmployeeRequest;
 import com.to4ilochka.bookspace.dto.employee.EmployeeResponse;
 import com.to4ilochka.bookspace.dto.employee.UpdateEmployeeRequest;
+import com.to4ilochka.bookspace.exception.BusinessValidationException;
 import com.to4ilochka.bookspace.exception.ResourceAlreadyExistsException;
 import com.to4ilochka.bookspace.exception.ResourceNotFoundException;
 import com.to4ilochka.bookspace.mapper.EmployeeMapper;
@@ -11,14 +12,12 @@ import com.to4ilochka.bookspace.model.User;
 import com.to4ilochka.bookspace.model.enums.Role;
 import com.to4ilochka.bookspace.repo.ClientRepository;
 import com.to4ilochka.bookspace.repo.EmployeeRepository;
+import com.to4ilochka.bookspace.repo.OrderRepository;
 import com.to4ilochka.bookspace.repo.UserRepository;
 import com.to4ilochka.bookspace.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -28,6 +27,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
+    private final OrderRepository orderRepository;
     private final EmployeeMapper employeeMapper;
 
     @Override
@@ -83,6 +83,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public void fireEmployee(Long employeeId) {
+        if (orderRepository.existsByEmployeeId(employeeId)) {
+            throw new BusinessValidationException("employee.delete.constraint");
+        }
+
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("employee.notfound"));
 

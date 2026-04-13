@@ -17,4 +17,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "LOWER(o.client.user.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "CAST(o.id AS string) LIKE CONCAT('%', :keyword, '%')")
     Page<Order> searchOrders(@Param("keyword") String keyword, Pageable pageable);
+
+    boolean existsByEmployeeId(Long employeeId);
 }
